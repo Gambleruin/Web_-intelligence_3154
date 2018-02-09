@@ -15,9 +15,15 @@ class Apriori:
             self.all_items |= trn.items
         pass
 
-    def get_support(self, set_items):
+    def get_support(self, item):
         # !!! Write code to return support of set_items
-        
+        N =len(transactions)
+        count =0
+        for e in transactions:
+            if (e == item):
+                count =count +1
+
+        return count/N
         pass
    
     def get_combinations(self, items, num):
