@@ -5,6 +5,8 @@ class Transaction:
         self.items = set(items)
 
 
+# for get all item function, there is a one line lambda expression
+flatten = lambda l: [item for sublist in l for item in sublist]
 class Apriori:
     def __init__(self, list_transactions):
         self.transactions = list_transactions
@@ -15,19 +17,35 @@ class Apriori:
 
     def get_support(self, set_items):
         # !!! Write code to return support of set_items
+        
         pass
-
+   
     def get_combinations(self, items, num):
-        # !!! Write code to return "num" number of combinations of items
+        if num:
+            for i in range(num -1, len(items)):
+                for cn in get_combinations(items[:i], num -1):
+                    yield cn +(items[i], )
+        else:
+            yield tuple()
         pass
 
     def get_all_items(self, itemsets):
         # !!! Write code to merge all the itemsets and return the current items
+        # all_items =[item for sublist in test_data for item in sublist]
+        return flatten(itemsets)
         pass
+
+    # using magical bitmap
+    def is_bit_set(num, bit):
+        return num&(1 <<bit) > 0
 
     def get_subsets(self, items):
         # !!! Write code to return all subsets of "items"
-
+        sets =[]
+        for i in range(1 <<len(items)):
+            subset =[items[bit] for bit in range(len(items)) if is_bit_set(i, bit)]
+            sets.append(subset)
+        return sets
         pass
 
     def get_rules(self, min_sup, min_con):
@@ -93,3 +111,6 @@ if __name__ == "__main__":
 
     a = Apriori(transactions)
     a.get_rules(min_sup=0.15, min_con= 0.6)
+
+
+
