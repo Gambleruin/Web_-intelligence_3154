@@ -1,49 +1,48 @@
 from nltk.corpus import stopwords
-from sklearn.feature_extraction.text import TfIdfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer 
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+import re
 import os
 
 class SearchEngine101:
     def __init__(self, dir):
         all_files = os.listdir(dir)
-        self.text_content= [open(file_name).read() for file_name in all_files]
+        # print(all_files)
+        self.text_content= [open(file_name, 'rb').read() for file_name in all_files]
         self.preprocess()
-        self.index()
-        print "Preprocessing and Indexing done..."
+        # self.index()
+        print ("Preprocessing and Indexing done...")
 
     def preprocess(self):
         """
         Cleans self.texts and sets the cleaned_texts attribute.
         """
         self.cleaned_texts = []
-
-        # !!! remove non-letter occurrences from the texts
-        # Use regex: re.sub
-        self.all_letter =re.sub(r'[^a-zA-Z]',self.text_content)
-
-        # !!! convert into lowercase
-        # Use .lower()
+        self.all_letter =re.sub(b'[^a-zA-Z ]',b'',self.text_content[0])
         self.cleaned_texts =self.all_letter.lower()
 
-    def tokenize(self, text):
-        """
-        Will split a text into words and remove stop words
-        :param text: string - can be a document or a query
-        :return: list - a list of words
-        """
-        # !!! Split the text into a sequence of words and store it in words
-        # Use .split()
-        words =text.split()
+        print(type(self.cleaned_texts))
+        print(self.cleaned_texts)
 
-
+    def tokenize(self):
+        # print(text)
+        text =self.cleaned_texts
+        # words =text.split(' ')
+        words =text.decode().split(' ')
+        # print(words)
         # !!! remove stopwords
 
         # Follow https://stackoverflow.com/questions/5486337/how-to-remove-stop-words-using-nltk-or-python
-        filtered_words =[word for word in words if word not in stopwords.words('english')]
-        return filtered_words
+        non_stop_words =[word for word in words if word not in stopwords.words('english')]
+        filtered_object =filter(None, non_stop_words)
+        filtered_list =list(filtered_object)
 
+        print('We finished token! ')
+        return filtered_list
+    '''
     def index(self):
+
         split_texts = [self.tokenize(text) for text in self.cleaned_texts]
 
         # We'll use a dictionary (HashMap) for storing the inverted index
@@ -70,7 +69,8 @@ class SearchEngine101:
         """
         # intersection = []
         # !!! populate the intersection list and return
-        return intersection = list(set(list1)&set(list2))
+        intersection = list(set(list1)&set(list2))
+        return intersection
 
     def filter(self, query):
         """
@@ -81,13 +81,12 @@ class SearchEngine101:
         query_terms = self.tokenize(query)
         # Retrieve ??? for each of the terms in the query
         document_lists = [self.inverted_index[term] for term in query_terms]
-        # !!! Optimise the document lists for faster intersection
+        # !!!Optimise the document lists for faster intersection
 
         # Now, iteratively take intersection
         document_indices = document_lists[0]
         for document_list in document_lists[1:]:
             document_indices = self.intersection(document_indices, document_list)
-
 
         return [self.cleaned_texts[index] for index in document_indices], [self.text_content[index] for index in document_indices]
 
@@ -104,9 +103,6 @@ class SearchEngine101:
 
         self.vectors =(text_matrix, query_matrix)
 
-       
-
-
     def retrieve_ranked_list(self):
         """
         Return the indices of text_vectors in decreasing order of cosine similarity and the scores
@@ -115,19 +111,18 @@ class SearchEngine101:
         :return: indices, scores: indices of top 10 documents and scores of all documents
         """
         similarities = []
-
         # !!! Populate the similarities array with cosine similarities between text_vectors and query_vector
         similarities =cosine_similarity(self.vectors)
         # Return the top 10 indices of the similarities array
         return np.argsort(similarities)[::-1][:10], similarities
 
     def print_list(self,text_content, scores, text_indices):
-        print len(text_indices), "Results Found!\n"
-        print "*******************************\n"
+        print (len(text_indices), "Results Found!\n")
+        print ("*******************************\n")
         for index in text_indices:
-            print scores[index]
-            print text_content[index]
-            print "*******************************\n"
+            print (scores[index])
+            print (text_content[index])
+            print ("*******************************\n")
 
     def search(self, query):
         filtered_clean, filtered_orig = self.filter(query)
@@ -142,8 +137,22 @@ class SearchEngine101:
 
         """
         pass
+    '''
+    
 
 if __name__ == "__main__":
     # Write the driver code here
-    engine = SearchEngine101(dir = "data")
-    engine.search("dalhousie university")
+    engine = SearchEngine101(dir = 'data_raw')
+    cleaned_texts =engine.cleaned_texts
+    split_texts = [engine.tokenize() for text in cleaned_texts]
+    print(cleaned_texts)
+    print(split_texts)
+    # print(engine.preprocess())
+    # print(engine.tokenize())
+    # engine.search("dalhousie university")
+
+
+    
+
+
+
