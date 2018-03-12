@@ -23,11 +23,11 @@ class Node:
         self.right = None
 
     def compute_entropy(self,classes):
-        """
-            !!! Given a list(distribution) of classes, return the entropy.
-            Ex: I/p - [1,1,1]
-                O/p - 0
-        """
+        '''
+        compute the entropy , might need to nomalize the data distribution
+        '''
+        entropy =-np.sum(np.multiply(classes, np.log2(classes)))
+        return entropy
         pass
 
     def get_values_and_classes(self,attr):
@@ -84,7 +84,22 @@ class Node:
         :param datum: object of the Datum class
         :return: label of the datum
         """
-        # !!! Write code.
+        self.data =datum
+        features =datum.features
+        classes =datum.class_
+        if is_pure:
+            return self.majority_class
+
+        elif not datum.features:
+            return None
+        else:
+            # D contains example belonging to a mixture of classes
+            if self.split_attr <= self.split_value:
+                self.left =get_left_split(features, self.split_value)
+                get_class(self.left)
+            else:
+                self.right =get_right_split(features, self.split_value)
+                get_class(self.right)
         pass
 
     def compute_best_split(self):
@@ -98,8 +113,10 @@ class Node:
             for prev_value,next_value in zip(values,values[1:]):
                 value = (prev_value + next_value) / 2
                 # !!! Using the above get_* methods, write code to compute gain for each value of the attribute.
-                gain = None
+                subset_entropy =np.multiply(len(value)/len(values), self.compute_entropy(value))
+                gain = current_entropy -subset_entropy
                 if gain>best_gain:
+                    # select the attribute that gives the most impurity reduction
                     best_gain = gain
                     best_value = value
             attrs_entropies[ind]["gain"] = best_gain
@@ -130,6 +147,14 @@ class DecisionTree:
         stack_nodes = [self.root]
         # !!! Write code to train decision tree. If the node is pure, set the majority_class attribute.
         # Use .pop(0) to pop the top of the stack
+        for data in stack_nodes:
+            self.split_attr, self.split_value =compute_best_split()
+            if self.split_attr <= self.split_value:
+                self.root =get_data_for_left()
+            else
+                self.root =get_data_for_right()
+
+            stack_nodes.pop(0)
         pass
 
     def predict(self, datum):
